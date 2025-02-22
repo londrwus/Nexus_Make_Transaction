@@ -38,12 +38,18 @@ async function transferNEX(to, amount = "0.1") {
         let maxFeePerGas = feeData.maxFeePerGas || feeData.gasPrice || ethers.parseUnits("2", "gwei");
         let maxPriorityFeePerGas = feeData.maxPriorityFeePerGas || ethers.parseUnits("1", "gwei");
 
-        // Ensure maxPriorityFeePerGas does not exceed maxFeePerGas
-        if (maxFeePerGas && maxPriorityFeePerGas) {
-            if (BigInt(maxPriorityFeePerGas) > BigInt(maxFeePerGas)) {
-                maxPriorityFeePerGas = maxFeePerGas - ethers.parseUnits("0.1", "gwei");
-            }
+        // Ensure maxPriorityFeePerGas does not exceed maxFeePerGas and increase it slightly
+        if (BigInt(maxPriorityFeePerGas) > BigInt(maxFeePerGas)) {
+            maxPriorityFeePerGas = maxFeePerGas / BigInt(2);
         }
+        if (BigInt(maxPriorityFeePerGas) < 0) {
+            maxPriorityFeePerGas = ethers.parseUnits("0.5", "gwei");
+        }
+
+        // Slightly increase gas fees to prevent underpayment issues
+        maxFeePerGas = BigInt(maxFeePerGas) + ethers.parseUnits("0.5", "gwei");
+        maxPriorityFeePerGas = BigInt(maxPriorityFeePerGas) + ethers.parseUnits("0.2", "gwei");
+
         console.log(`🔹 Gas Fees: maxFeePerGas=${maxFeePerGas.toString()}, maxPriorityFeePerGas=${maxPriorityFeePerGas.toString()}`);
 
         // Create native transfer transaction
