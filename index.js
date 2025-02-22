@@ -20,18 +20,18 @@ async function transferNEX(to, amount = "0.1") {
         // Load provider and wallet
         const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
         const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
-        console.log("🔹 Wallet loaded successfully.");
+        console.log("🔹 Кошелек был загружен.");
 
         // Convert amount to the correct decimal (assuming 18 decimals for NEX)
         const value = ethers.parseUnits(amount, 18);
-        console.log(`🔹 Preparing to send: ${amount} NEX to ${to}`);
+        console.log(`🔹 Готовимся к отправке: ${amount} NEX к ${to}`);
 
         // Dynamically estimate gas limit
         const estimatedGasLimit = await provider.estimateGas({
             to: to,
             value: value
         });
-        console.log(`🔹 Estimated Gas Limit: ${estimatedGasLimit.toString()}`);
+        console.log(`🔹 Примерный Gas Limit: ${estimatedGasLimit.toString()}`);
 
         // Fetch up-to-date fee data
         const feeData = await provider.getFeeData();
@@ -63,53 +63,40 @@ async function transferNEX(to, amount = "0.1") {
             type: 2, // EIP-1559 transaction
         };
 
-        console.log("🔹 Signing and sending transaction...");
+        console.log("🔹 Подписываем и отправляем транзакцию...");
         // Sign and send transaction
         const txResponse = await wallet.sendTransaction(tx);
-        console.log(`✅ Transaction sent! Hash: ${txResponse.hash}\n`);
+        console.log(`✅ Транзакция была отправлена! Hash: ${txResponse.hash}\n`);
 
         // Wait for confirmation
-        console.log("⏳ Waiting for transaction confirmation...");
+        console.log("⏳ Ожидаем подтверждение транзакции...");
         const receipt = await txResponse.wait();
-        console.log("✅ Transaction confirmed!");
+        console.log("✅ Транзакция подтверждена!");
         console.log(`🔹 Block Number: ${receipt.blockNumber}`);
         console.log(`🔹 Gas Used: ${receipt.gasUsed.toString()} units`);
         console.log("\n==============================");
-        console.log("      ✅ Transfer Complete ✅  ");
+        console.log("      ✅ Транзакция завершена ✅  ");
         console.log("==============================\n");
     } catch (error) {
-        console.error("❌ Error sending transaction:", error.message);
+        console.error("❌ Ошибка при отправке:", error.message);
     }
 }
 
 function askForInput() {
-    cfonts.say("NT Exhaust", {
-        font: "block",
-        align: "center",
-        colors: ["cyan", "magenta"],
-        background: "black",
-        letterSpacing: 1,
-        lineHeight: 1,
-        space: true,
-        maxLength: "0",
-    });
-
-    console.log(chalk.blue.bold("=== Telegram Channel : NT Exhaust (@NTExhaust) ===", "\x1b[36m"));
-
-    rl.question("Enter recipient addresses (comma-separated): ", (addresses) => {
+    rl.question("Введите адрес кошелька (если больше 1, то разделяйте символом ;): ", (addresses) => {
         const recipients = addresses.split(",").map(addr => addr.trim());
-        rl.question("Enter amount of NEX to send: ", (amount) => {
-            rl.question("Enter the number of times to repeat transfers: ", async (loopCount) => {
+        rl.question("Сколько отправить NEX: ", (amount) => {
+            rl.question("Сколько раз повторить отправку: ", async (loopCount) => {
                 loopCount = parseInt(loopCount);
-                console.log(`\nStarting transfers to ${recipients.length} addresses, repeating ${loopCount} times...`);
+                console.log(`\nНачинаем отправку к ${recipients.length} addresses, повторяем ${loopCount} раз...`);
                 for (let j = 0; j < loopCount; j++) {
                     console.log(`\n🔄 Loop ${j + 1}/${loopCount}`);
                     for (let i = 0; i < recipients.length; i++) {
-                        console.log(`\n➡️ Sending ${amount} NEX to ${recipients[i]} (Transaction ${i + 1}/${recipients.length})`);
+                        console.log(`\n➡️ Отправяем ${amount} NEX к ${recipients[i]} (Транзакция ${i + 1}/${recipients.length})`);
                         await transferNEX(recipients[i], amount);
                     }
                 }
-                console.log("✅ All transactions completed!");
+                console.log("✅ Все транзакции были выполнены!");
                 rl.close();
             });
         });
