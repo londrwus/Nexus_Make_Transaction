@@ -83,7 +83,7 @@ async function transferNEX(to, amount = "0.1") {
 }
 
 function askForInput() {
-    rl.question("Введите адрес кошелька (если больше 1, то разделяйте символом ;): ", (addresses) => {
+    rl.question("Введите адрес кошелька (если больше 1, то разделяйте символом ,): ", (addresses) => {
         const recipients = addresses.split(",").map(addr => addr.trim());
         rl.question("Сколько отправить NEX: ", (amount) => {
             rl.question("Сколько раз повторить отправку: ", async (loopCount) => {
